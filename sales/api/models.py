@@ -41,7 +41,7 @@ class Item(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.SET_NULL)
+    item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     qty = models.PositiveIntegerField(default=0)
 
     class Meta:
