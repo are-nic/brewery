@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from food.models import Recipe
 from .models import *
 from .serializers import OrderListSerializer, OrderDetailSerializer, OrderItemSerializer
 from .permissions import CustomerOrderOrReadOnly
@@ -47,9 +46,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         )
 
         for item_data in items:
-            recipe = Item.objects.filter(title=item_data.get('item')).first()
+            item = Item.objects.filter(title=item_data.get('item')).first()
             OrderItem.objects.create(
-                recipe=item,
+                item=item,
                 qty=item_data.get('qty'),
                 order=order
             )
@@ -58,25 +57,25 @@ class OrderViewSet(viewsets.ModelViewSet):
 class OrderItemViewSet(viewsets.ModelViewSet):
     """
     Создан для вложенных маршрутов, связанных с Заказом
-    Для взаимодействия с рецептами заказа
+    Для взаимодействия с продуктами заказа
     get, post, put, patch, delete
     """
     serializer_class = OrderItemSerializer
 
     def get_queryset(self):
-        return OrderRecipe.objects.filter(order=self.kwargs['orders_pk'])
+        return OrderItem.objects.filter(order=self.kwargs['orders_pk'])
 # ----------------------------------------------------------------------------------------------------------
 
 
-class OrderRecipeView(viewsets.ModelViewSet):
+class OrderItemDetailView(viewsets.ModelViewSet):
     """
     Конечная точка API, позволяющая просматривать, создавать или редактировать продукты заказа.
     get, post, put, patch, delete
     сортировка по заказам
-    доступ: Ко всем рецептам заказов в БД имеет доступ Суперпользователь
-            Любой пользователь имеет доступ к своим рецептам заказа.
+    доступ: Ко всем продуктам заказов в БД имеет доступ Суперпользователь
+            Любой пользователь имеет доступ к своим продуктам заказа.
     """
-    queryset = OrderRecipe.objects.order_by('order')
+    queryset = OrderItem.objects.order_by('order')
     serializer_class = OrderItemSerializer
 
     def get_queryset(self):
