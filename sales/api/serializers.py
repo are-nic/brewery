@@ -52,11 +52,11 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """
-        Обновление экземпляра рецепта заказа и самого заказа
+        Обновление экземпляра товара заказа и самого заказа
         """
         if 'items' in validated_data:
             items_data = validated_data.pop('items')
-            items = instance.recipes.all()
+            items = instance.items.all()
             items = list(items)
             for item_data in items_data:
                 item = items.pop(0)
