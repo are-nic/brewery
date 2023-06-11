@@ -30,7 +30,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
-    """Список Заказов"""
+    """ Orders' list """
     customer = serializers.CharField(source="customer.name", read_only=True)
     pay_method = ChoiceField(choices=Order.PAY_METHOD)
 
@@ -40,7 +40,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
-    """Один Заказ"""
+    """ A order's detail """
 
     customer = serializers.CharField(source="customer.name", read_only=True)
     items = OrderItemSerializer(many=True)
