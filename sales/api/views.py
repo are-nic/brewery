@@ -63,17 +63,17 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     serializer_class = OrderItemSerializer
 
     def get_queryset(self):
-        return OrderItem.objects.filter(order=self.kwargs['orders_pk'])
+        return OrderItem.objects.filter(order=self.kwargs['order_pk'])
 # ----------------------------------------------------------------------------------------------------------
 
 
 class OrderItemDetailView(viewsets.ModelViewSet):
     """
-    Конечная точка API, позволяющая просматривать, создавать или редактировать продукты заказа.
+    Order's item view.
     get, post, put, patch, delete
-    сортировка по заказам
-    доступ: Ко всем продуктам заказов в БД имеет доступ Суперпользователь
-            Любой пользователь имеет доступ к своим продуктам заказа.
+    Sorted by order.
+    Access: SuperUser has access to all orders' items
+            IsAuthenticated user has access to his orders' items.
     """
     queryset = OrderItem.objects.order_by('order')
     serializer_class = OrderItemSerializer
