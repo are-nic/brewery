@@ -8,12 +8,12 @@ router = SimpleRouter(trailing_slash=False)
 
 # вложенные маршруты к заказам и рецептам заказа
 # /order - all current user's Orders
-# /orders/{pk} - show a order's detail via id
-router.register('orders', OrderViewSet, basename='orders')
+# /orders/{id} - show a order's detail via id
+router.register('orders', OrderViewSet, basename='order')
 # /orders/{orders_pk}/item - all one order's items
-orders_router = routers.NestedSimpleRouter(router, 'orders', lookup='orders')
+orders_router = routers.NestedSimpleRouter(router, 'orders', lookup='order')
 # /order/{order_pk}/item/{item_pk} - детали рецепта по id рецепта
-orders_router.register('item', OrderItemViewSet, basename='item')
+orders_router.register('items', OrderItemViewSet, basename='item')
 
 urlpatterns = [
     path('token-auth/', views.obtain_auth_token)
