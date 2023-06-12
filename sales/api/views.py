@@ -1,11 +1,30 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
 from .models import *
-from .serializers import OrderListSerializer, OrderDetailSerializer, OrderItemSerializer
+from .serializers import OrderListSerializer, OrderDetailSerializer, OrderItemSerializer, UserRegisterSerializer
 from .permissions import CustomerOrderOrReadOnly
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 User = get_user_model()
+
+
+class RegisterUserView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserRegisterSerializer(data=request.data)
+        data = {}
+        if serializer.is_valid():
+            serializer.save()
+            data['response'] = "You've been registered"
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            data = serializer.errors
+            return Response(data)
 
 
 # ---------------------------------------------For Nested Routers--------------------------------------------
@@ -63,7 +82,8 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     serializer_class = OrderItemSerializer
 
     def get_queryset(self):
-        return OrderItem.objects.filter(order=self.kwargs['order_pk'])
+        if self.kwargs:
+            return OrderItem.objects.filter(order=self.kwargs['order_pk'])
 # ----------------------------------------------------------------------------------------------------------
 
 
