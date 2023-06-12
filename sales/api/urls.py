@@ -1,5 +1,5 @@
 from rest_framework.routers import SimpleRouter
-from .views import OrderViewSet, OrderItemViewSet
+from .views import OrderViewSet, OrderItemViewSet, RegisterUserView
 from rest_framework.authtoken import views
 from django.urls import path
 from rest_framework_nested import routers
@@ -16,6 +16,7 @@ orders_router = routers.NestedSimpleRouter(router, 'orders', lookup='order')
 orders_router.register('items', OrderItemViewSet, basename='item')
 
 urlpatterns = [
+    path('register/', RegisterUserView.as_view(), name='register'),
     path('token-auth/', views.obtain_auth_token)
 ]
 urlpatterns += router.urls
