@@ -46,7 +46,7 @@ class OrderItem(models.Model):
 
     class Meta:
         ordering = ('order',)
-        db_table = 'order_item'
+        db_table = 'order_items'
 
     def __str__(self):
         return self.item.name
