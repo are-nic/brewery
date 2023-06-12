@@ -1,9 +1,8 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 from .models import *
-from .serializers import OrderListSerializer, OrderDetailSerializer, OrderItemSerializer, UserRegisterSerializer
-from .permissions import CustomerOrderOrReadOnly
+from .serializers import *
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -27,22 +26,13 @@ class RegisterUserView(CreateAPIView):
             return Response(data)
 
 
-# ---------------------------------------------For Nested Routers--------------------------------------------
+# --------------------------------------------- ORDERS --------------------------------------------
 class OrderViewSet(viewsets.ModelViewSet):
     """
-    Создан для вложенных маршрутов, связанных с Заказом
-    Все методы для работы с заказами.
-    Доступ: создание заказа для любого аутентифицированного юзера
-            действия над заказами доступны для владельцев заказа или суперпользователю
+    Methods for orders
+    Access: POST order is available from IsAuthenticated users
+            GET, PUT, PATCH, DELETE are available for order's owner or Superuser
     """
-
-    def get_permissions(self):
-        if self.action == 'create':
-            permission_classes = [IsAuthenticated]
-        else:
-            permission_classes = [CustomerOrderOrReadOnly]
-        return [permission() for permission in permission_classes]
-
     def get_queryset(self):
         if self.request.user.is_superuser:
             return Order.objects.all()
@@ -50,22 +40,19 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(customer=self.request.user.id)
 
     def get_serializer_class(self):
-        """Выбор сериализатора в зависимости от применяемого метода"""
+        """ Choice of serializer depends on the method """
         if self.action == 'list':
             return OrderListSerializer
         return OrderDetailSerializer
 
     def perform_create(self, serializer):
-        """При создании заказа текущий юзер заносится в поле Customer"""
+        """ When Order created the current user saves as a customer """
         items = self.request.data.pop('items')
 
-        order = Order.objects.create(
-            customer=self.request.user,
-            pay_method=self.request.data.get('pay_method'),
-        )
+        order = Order.objects.create(customer=self.request.user)
 
         for item_data in items:
-            item = Item.objects.filter(title=item_data.get('item')).first()
+            item = Item.objects.filter(id=item_data.get('item')).first()
             OrderItem.objects.create(
                 item=item,
                 qty=item_data.get('qty'),
@@ -73,32 +60,15 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
 
 
-class OrderItemViewSet(viewsets.ModelViewSet):
+# ----------------------------------------- ITEM -----------------------------------
+class ItemViewSet(mixins.ListModelMixin,
+               mixins.RetrieveModelMixin,
+               viewsets.GenericViewSet):
     """
-    Создан для вложенных маршрутов, связанных с Заказом
-    Для взаимодействия с продуктами заказа
-    get, post, put, patch, delete
+    GET methods are available for Authenticated Users.
     """
-    serializer_class = OrderItemSerializer
-
-    def get_queryset(self):
-        if self.kwargs:
-            return OrderItem.objects.filter(order=self.kwargs['order_pk'])
-# ----------------------------------------------------------------------------------------------------------
+    queryset = Item.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemSerializer
 
 
-class OrderItemDetailView(viewsets.ModelViewSet):
-    """
-    Order's item view.
-    get, post, put, patch, delete
-    Sorted by order.
-    Access: SuperUser has access to all orders' items
-            IsAuthenticated user has access to his orders' items.
-    """
-    queryset = OrderItem.objects.order_by('order')
-    serializer_class = OrderItemSerializer
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return self.queryset
-        return self.queryset.filter(order__customer=self.request.user)
