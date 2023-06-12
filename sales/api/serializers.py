@@ -1,32 +1,20 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import Order, OrderItem, Item
 from django.contrib.auth import get_user_model
+from drf_writable_nested import WritableNestedModelSerializer
 
 User = get_user_model()
 
 
-class ChoiceField(serializers.ChoiceField):
-    """
-    Настраиваемое поле для поля выбора значений
-    """
-    def to_representation(self, obj):
-        # Предоставляет читабельное значение из списка choices полей модели
-        if obj == '' and self.allow_blank:
-            return obj
-        return self._choices[obj]
-
-    def to_internal_value(self, data):
-        # Поддерживает отправляемые значения через post, put, patch методы
-        if data == '' and self.allow_blank:
-            return ''
-
-        for key, val in self._choices.items():
-            if val == data:
-                return key
-        self.fail('invalid_choice', input=data)
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = '__all__'
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    # item = serializers.CharField(source='item.name')
+
     class Meta:
         model = OrderItem
         fields = ('item', 'qty')
@@ -34,42 +22,21 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderListSerializer(serializers.ModelSerializer):
     """ Orders' list """
-    customer = serializers.CharField(source="customer.name", read_only=True)
-    pay_method = ChoiceField(choices=Order.PAY_METHOD)
+    customer = serializers.CharField(source="customer.username", read_only=True)
 
     class Meta:
         model = Order
         fields = '__all__'
 
 
-class OrderDetailSerializer(serializers.ModelSerializer):
+class OrderDetailSerializer(WritableNestedModelSerializer, serializers.ModelSerializer):
     """ A order's detail """
-
-    customer = serializers.CharField(source="customer.name", read_only=True)
+    customer = serializers.CharField(source="customer.username", read_only=True)
     items = OrderItemSerializer(many=True)
-    pay_method = ChoiceField(choices=Order.PAY_METHOD)
 
     class Meta:
         model = Order
         fields = '__all__'
-
-    def update(self, instance, validated_data):
-        """
-        Обновление экземпляра товара заказа и самого заказа
-        """
-        if 'items' in validated_data:
-            items_data = validated_data.pop('items')
-            items = instance.items.all()
-            items = list(items)
-            for item_data in items_data:
-                item = items.pop(0)
-                item.qty = item_data.get('qty', item.qty)
-                item.save()
-
-        instance.pay_method = validated_data.get('pay_method', instance.pay_method)
-        instance.save()
-
-        return instance
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
