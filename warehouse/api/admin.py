@@ -4,8 +4,4 @@ from .models import Item
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-    list_display = (
-        'name',
-        'qty',
-        'price'
-    )
+    list_display = ['name', 'qty', 'price']
