@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 
 class ItemViewSet(viewsets.ModelViewSet):
     """
-    GET method is available for Authenticated users. All methods are available for Admins.
+    All methods are available for Admins.
     """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
