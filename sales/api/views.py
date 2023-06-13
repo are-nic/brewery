@@ -60,7 +60,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
 
     def create(self, request, *args, **kwargs):
-        """ Override method fom POST order """
+        """ Overrode method for POST """
         items_data = request.data.get('items')
         order_items = []
         if items_data:
@@ -107,6 +107,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'error': "No items provided"}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
+        """ Overrode method for PUT and PATCH """
         order_data = request.data                                                   # Получить данные из запроса
         order_items_data = order_data.pop('items', [])
         order = Order.objects.get(id=kwargs['pk'])                                  # Получить экземпляр заказа из БД
