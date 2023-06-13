@@ -64,31 +64,32 @@ class OrderViewSet(viewsets.ModelViewSet):
         items_data = request.data.get('items')
         order_items = []
         if items_data:
-            for item_data in items_data:                        # перебираем все товары заказа из тела запроса
-                item_id = item_data.get('item')                 # получаем id Товара, который хотим заказать
-                order_item_qty = item_data.get('qty')           # получаем кол-во, которое необходимо заказать
-                max_qty = item_data.get('max_qty')              # получаем значение поля "Максимальное кол-во"
+            for item_data in items_data:                                    # перебираем все товары заказа из тела запроса
+                item_id = item_data.get('item')                             # получаем id Товара, который хотим заказать
+                order_item_qty = item_data.get('qty')                       # получаем кол-во, которое необходимо заказать
+                max_qty = item_data.get('max_qty')                          # получаем значение поля "Максимальное кол-во"
 
-                if item_id:                                     # если переданы в теле запроса id товара со склада
-                    if order_item_qty and order_item_qty > 0:   # если передано в теле запроса кол-во товара и оно больше 0
+                if item_id:                                                 # если переданы в теле запроса id товара со склада
+
+                    if order_item_qty and order_item_qty > 0:               # если передано в теле запроса кол-во товара и оно больше 0
                         try:
-                            item = Item.objects.get(pk=item_id)     # получаем экземпляр Товара
-                            if item.qty >= order_item_qty:          # если кол-во запрашиваемого товара меньше либо равно кол-ву Товара на складе
+                            item = Item.objects.get(pk=item_id)             # получаем экземпляр Товара
+                            if item.qty >= order_item_qty:                  # если кол-во запрашиваемого товара меньше либо равно кол-ву Товара на складе
                                 order_items.append(OrderItem(item=item, qty=order_item_qty))
-                                item.qty -= order_item_qty          # уменьшаем кол-во Товара на складе
-                                item.save()                         # сохраняем изменения в Товаре
+                                item.qty -= order_item_qty                  # уменьшаем кол-во Товара на складе
+                                item.save()                                 # сохраняем изменения в Товаре
                             else:
                                 return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
                         except Item.DoesNotExist:
                             return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-                    elif max_qty:                                   # если в теле запроса передам параметр "max_qty" и он True
+                    elif max_qty:                                           # если в теле запроса передам параметр "max_qty" и он True
                         try:
-                            item = Item.objects.get(pk=item_id)     # получаем экземпляр Товара
-                            if item.qty > 0:                        # если кол-во запрашиваемого товара больше 0
+                            item = Item.objects.get(pk=item_id)             # получаем экземпляр Товара
+                            if item.qty > 0:                                # если кол-во запрашиваемого товара больше 0
                                 order_items.append(OrderItem(item=item, qty=item.qty))
-                                item.qty = 0                        # уменьшаем кол-во Товара на складе до 0
-                                item.save()                         # сохраняем изменения в Товаре
+                                item.qty = 0                                # уменьшаем кол-во Товара на складе до 0
+                                item.save()                                 # сохраняем изменения в Товаре
                             else:
                                 return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
                         except Item.DoesNotExist:
@@ -106,36 +107,33 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'error': "No items provided"}, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, *args, **kwargs):
+        order_data = request.data                                                   # Получить данные из запроса
+        order_items_data = order_data.pop('items', [])
+        order = Order.objects.get(id=kwargs['pk'])                                  # Получить экземпляр заказа из БД
+        print()
 
-        items_data = request.data.get('items')                              # Получить данные из запроса
-        print(items_data)
-        order_items = []
+        if order_items_data:
+            for item_data in order_items_data:                                      # перебираем все товары заказа из тела запроса
+                item_id = item_data.get('item')                                     # получаем id Товара, который хотим заказать
+                max_qty = item_data.get('max_qty')                                  # получаем значение поля "Максимальное кол-во"
 
-        if items_data:
-            for item_data in items_data:                                    # перебираем все товары заказа из тела запроса
-                item_id = item_data.get('item')                             # получаем id Товара, который хотим заказать
-                max_qty = item_data.get('max_qty')                          # получаем значение поля "Максимальное кол-во"
-
-                if max_qty:                                                         # Если поле 'max_qty' равно True, выполнить логику создания заказа
-                    order = Order.objects.create(customer=self.request.user)        # Создать заказ
+                if max_qty:                                                         # Если поле 'max_qty' равно True, выполнить логику обновления Заказа
                     try:
-                        item = Item.objects.get(pk=item_id)                         # получаем экземпляр Товара
+                        item = Item.objects.get(id=item_id)                         # получаем экземпляр Товара
                         if item.qty > 0:                                            # если кол-во запрашиваемого товара больше 0
-                            order_items.append(OrderItem(item=item, qty=item.qty))
+                            OrderItem.objects.create(order=order, item=item, qty=item.qty)
                             item.qty = 0                                            # уменьшаем кол-во Товара на складе до 0
                             item.save()                                             # сохраняем изменения в Товаре
                         else:
                             return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
                     except Item.DoesNotExist:
                         return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-                    item = OrderItem.objects.create(order=order, **item_data)
+                else:
+                    super().update(request, *args, **kwargs)                        # Если поле 'max_qty' не равно True, выполнить стандартное обновление
 
-                    # Сериализовать и вернуть созданный заказ
-                    serializer = self.get_serializer(order)
-                    return Response(serializer.data)
-
-                # Если поле 'max_qty' не равно True, выполнить стандартное обновление
-                return super().update(request, *args, **kwargs)
+            # Сериализовать и вернуть созданный заказ
+            serializer = self.get_serializer(order)
+            return Response(serializer.data)
 
         return Response({'error': "No items provided"}, status=status.HTTP_400_BAD_REQUEST)
 
