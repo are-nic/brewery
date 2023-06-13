@@ -14,10 +14,11 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     # item = serializers.CharField(source='item.name')
+    max_qty = serializers.BooleanField(required=False, allow_null=True)
 
     class Meta:
         model = OrderItem
-        fields = ('item', 'qty')
+        fields = ('item', 'qty', 'max_qty')
 
 
 class OrderListSerializer(serializers.ModelSerializer):
