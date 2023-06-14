@@ -8,17 +8,14 @@ from .serializers import *
 @receiver(post_save, sender=Item)
 def create_or_update_item(sender, instance, created, **kwargs):
     """
-    Signal triggered when the Item object is created
+    Signal triggered when the Item object is created or updated
     """
-    serializer = ItemSerializer(data=instance)
-    serializer.is_valid()
-    print(serializer)
+    serializer = ItemSerializer(instance)
+
     if created:
-        print('item_created', serializer.data)
-        publish('item_created', serializer.data)
+        publish('item_created', serializer.data)        # {'id': 7, 'name': 'Beer', 'price': '200.00', 'qty': 10}
 
     if not created:
-        print('item_updated', serializer.data)
         publish('item_updated', serializer.data)
 
 
@@ -28,5 +25,4 @@ def delete_item(sender, instance, **kwargs):
     Signal triggered when the Item object is deleted
     """
     item_pk = instance.id
-    print('item_deleted', item_pk)
     publish('item_deleted', item_pk)
