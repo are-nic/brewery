@@ -109,14 +109,14 @@ class OrderViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         """ Overrode method for PUT and PATCH """
         order_data = request.data                                                   # Получить данные из запроса
-        order_items_data = order_data.pop('items', [])
+        order_items_data = order_data.pop('items', [])                              # получаем данные товаров заказа из тела запроса
         order = Order.objects.get(id=kwargs['pk'])                                  # Получить экземпляр заказа из БД
-        print()
 
         if order_items_data:
             for item_data in order_items_data:                                      # перебираем все товары заказа из тела запроса
                 item_id = item_data.get('item')                                     # получаем id Товара, который хотим заказать
                 max_qty = item_data.get('max_qty')                                  # получаем значение поля "Максимальное кол-во"
+                order_item_qty = item_data.get('qty')  # получаем кол-во, которое необходимо заказать
 
                 if max_qty:                                                         # Если поле 'max_qty' равно True, выполнить логику обновления Заказа
                     try:
@@ -129,8 +129,18 @@ class OrderViewSet(viewsets.ModelViewSet):
                             return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
                     except Item.DoesNotExist:
                         return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    super().update(request, *args, **kwargs)                        # Если поле 'max_qty' не равно True, выполнить стандартное обновление
+
+                elif order_item_qty and order_item_qty > 0:
+                    try:
+                        item = Item.objects.get(pk=item_id)  # получаем экземпляр Товара
+                        if item.qty >= order_item_qty:  # если кол-во запрашиваемого товара меньше либо равно кол-ву Товара на складе
+                            OrderItem.objects.create(order=order, item=item, qty=order_item_qty)
+                            item.qty -= order_item_qty  # уменьшаем кол-во Товара на складе
+                            item.save()  # сохраняем изменения в Товаре
+                        else:
+                            return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
+                    except Item.DoesNotExist:
+                        return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Сериализовать и вернуть созданный заказ
             serializer = self.get_serializer(order)
