@@ -5,7 +5,7 @@ import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
-channel.exchange_declare(exchange='warehouse', exchange_type='fanout')
+channel.exchange_declare(exchange='sales', exchange_type='fanout')
 
 
 def publish(method, body):
@@ -17,4 +17,4 @@ def publish(method, body):
     :return:
     """
     properties = pika.BasicProperties(method)
-    channel.basic_publish(exchange='warehouse', routing_key='', body=json.dumps(body), properties=properties)
+    channel.basic_publish(exchange='sales', routing_key='', body=json.dumps(body), properties=properties)
