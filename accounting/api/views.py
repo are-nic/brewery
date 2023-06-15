@@ -1,13 +1,13 @@
 from rest_framework import viewsets
-from .serializers import SalarySerializer
-from .models import Salary
+from .serializers import OrderItemSerializer
+from .models import OrderItem
 from rest_framework.permissions import IsAdminUser
 
 
-class SalaryViewSet(viewsets.ModelViewSet):
+class OrderItemViewSet(viewsets.ReadOnlyModelViewSet):
     """
     All methods are available for Admins.
     """
-    queryset = Salary.objects.all()
-    serializer_class = SalarySerializer
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
     permission_classes = [IsAdminUser]
