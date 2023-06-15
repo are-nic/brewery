@@ -1,5 +1,5 @@
 """
-To receive messages from the Sales
+To receive messages from the Sales. Подписка на обменник 'sales', из которого формируется очередь специально для для Accounting
 """
 import json
 import pika
@@ -10,32 +10,28 @@ connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', hear
 channel = connection.channel()
 
 channel.exchange_declare(exchange='sales', exchange_type='fanout')
-channel.exchange_declare(exchange='warehouse', exchange_type='fanout')
 
 result = channel.queue_declare(queue='', exclusive=True)
 queue_name = result.method.queue
 
 # Привязка очереди к Exchange
 channel.queue_bind(exchange='sales', queue=queue_name)
-channel.queue_bind(exchange='warehouse', queue=queue_name)
 
-
-result = channel.queue_declare(queue='', exclusive=True)
-queue_name = result.method.queue
+# channel.queue_declare(queue='sales')
 
 
 def callback(ch, method, properties, body):
     """
-    It handles the creation, updating, and deletion of Item instances
+    It handles the creation, updating, and deletion of Item's and OrderItem's instances
     :param ch: the channel where communication occurs
     :param method: the information concerning message delivery
     :param properties: user-defined properties on the message.
     :param body: the message received
     """
-    print("Receive messages from Sales and Warehouse")
+    print("Receive messages from Sales")
     data = json.loads(body)
     print(data)
-    # ---------------------------------- Sales ---------------------------------------
+    # ---------------------------------- item ---------------------------------------
     if properties.content_type == 'item_created':
         Item.objects.create(id=data['id'], name=data['name'], price=data['price'], qty=data['qty'])
         print("item created")
@@ -53,7 +49,7 @@ def callback(ch, method, properties, body):
         item.delete()
         print("item deleted")
 
-    # ---------------------------------- Warehouse ----------------------------------
+    # ---------------------------------- Order's Item ----------------------------------
     if properties.content_type == 'order_item_created':
         item = Item.objects.get(id=data['item'])
         OrderItem.objects.create(id=data['id'], item=item, qty=data['qty'], ordered_at=data['ordered_at'])

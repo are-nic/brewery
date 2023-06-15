@@ -1,5 +1,5 @@
 """
-To receive messages from the Sales
+To receive messages from the Sales. Подписка на обменник 'sales', из которого формируется очередь специально для для Warehouse
 """
 import json
 import pika
@@ -15,6 +15,7 @@ result = channel.queue_declare(queue='', exclusive=True)
 queue_name = result.method.queue
 
 channel.queue_bind(exchange='sales', queue=queue_name)
+# channel.queue_declare(queue='sales')
 
 
 def callback(ch, method, properties, body):
