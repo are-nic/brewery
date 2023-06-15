@@ -5,8 +5,7 @@ from django.urls import path
 
 router = SimpleRouter(trailing_slash=False)
 
-router.register('orders', OrderViewSet, basename='order')
-
+router.register('orders', OrderViewSet, basename='orders')
 router.register('items', ItemViewSet, basename='items')
 
 urlpatterns = [
