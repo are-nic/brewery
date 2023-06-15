@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Salary
+from .models import OrderItem
 
 
-class SalarySerializer(serializers.ModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Salary
-        fields = '__all__'
+        model = OrderItem
+        fields = ['item', 'total_sum', 'ordered_at']
