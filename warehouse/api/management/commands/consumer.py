@@ -8,7 +8,13 @@ from django.core.management.base import BaseCommand
 
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
-channel.queue_declare(queue='items from sales')
+
+channel.exchange_declare(exchange='sales', exchange_type='fanout')
+
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+
+channel.queue_bind(exchange='sales', queue=queue_name)
 
 
 def callback(ch, method, properties, body):
@@ -19,7 +25,7 @@ def callback(ch, method, properties, body):
     :param properties: user-defined properties on the message.
     :param body: the message received
     """
-    print("Receive items from sales")
+    print("Receive message from sales")
     data = json.loads(body)
     print(data)
 
@@ -34,7 +40,7 @@ def callback(ch, method, properties, body):
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        # to allow our callback function to receive messages from the "items" queue.
-        channel.basic_consume(queue='items from sales', on_message_callback=callback, auto_ack=True)
+        # to allow our callback function to receive messages from the queue.
+        channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
         print("Consuming started...")
         channel.start_consuming()       # tell our channel to start receiving messages
