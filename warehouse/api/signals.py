@@ -12,10 +12,10 @@ def create_or_update_item(sender, instance, created, **kwargs):
     """
     serializer = ItemSerializer(instance)
 
-    if created:
-        publish('item_created', serializer.data)        # {'id': 7, 'name': 'Beer', 'price': '200.00', 'qty': 10}
+    if created:     # если создан Продукт в БД
+        publish('item_created', serializer.data)
 
-    if not created:
+    if not created:     # если обновлен Продукт в БД
         publish('item_updated', serializer.data)
 
 
