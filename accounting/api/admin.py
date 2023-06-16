@@ -4,9 +4,9 @@ from .models import *
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price']
+    list_display = ['name', 'qty', 'price']
 
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ['item', 'qty', 'ordered_at', 'total_sum']
+    list_display = ['item', 'qty', 'total_sum']
