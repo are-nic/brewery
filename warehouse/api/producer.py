@@ -8,8 +8,7 @@ import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
-# channel.exchange_declare(exchange='warehouse', exchange_type='fanout')
-channel.queue_declare(queue='warehouse')
+channel.queue_declare(queue='warehouse', durable=True)
 
 
 def publish(method, body):

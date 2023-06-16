@@ -9,15 +9,13 @@ from django.core.management.base import BaseCommand
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
-channel.exchange_declare(exchange='sales', exchange_type='fanout')
+channel.exchange_declare(exchange='sales', exchange_type='direct')
 
-result = channel.queue_declare(queue='', exclusive=True)
+result = channel.queue_declare(queue='', exclusive=True, durable=True)
 queue_name = result.method.queue
 
 # Привязка очереди к Exchange
-channel.queue_bind(exchange='sales', queue=queue_name)
-
-# channel.queue_declare(queue='sales')
+channel.queue_bind(exchange='sales', queue=queue_name, routing_key='to_accounting')
 
 
 def callback(ch, method, properties, body):
@@ -28,7 +26,7 @@ def callback(ch, method, properties, body):
     :param properties: user-defined properties on the message.
     :param body: the message received
     """
-    print("Receive messages from Sales")
+    print("Accounting -> Receive Item from Sales")
     data = json.loads(body)
     print(data)
     # ---------------------------------- item ---------------------------------------
@@ -50,9 +48,9 @@ def callback(ch, method, properties, body):
         print("item deleted")
 
     # ---------------------------------- Order's Item ----------------------------------
-    if properties.content_type == 'order_item_created':
+    elif properties.content_type == 'order_item_created':
         item = Item.objects.get(id=data['item'])
-        OrderItem.objects.create(id=data['id'], item=item, qty=data['qty'], ordered_at=data['ordered_at'])
+        OrderItem.objects.create(id=data['id'], item=item, qty=data['qty'])
         print("Order's item created")
 
     elif properties.content_type == 'order_item_updated':
@@ -60,7 +58,6 @@ def callback(ch, method, properties, body):
         order_item = OrderItem.objects.get(id=data['id'])
         order_item.item = item
         order_item.qty = data['qty']
-        order_item.ordered_at = data['ordered_at']
         order_item.save()
         print("Order's item updated")
 
@@ -69,10 +66,12 @@ def callback(ch, method, properties, body):
         order_item.delete()
         print("Order's item deleted")
 
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         # to allow our callback function to receive messages from the "items" queue.
-        channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-        print("Consuming started...")
+        channel.basic_consume(queue=queue_name, on_message_callback=callback)
+        print("Accounting Consumer started...")
         channel.start_consuming()       # tell our channel to start receiving messages

@@ -1,5 +1,5 @@
 """
-To receive messages from the Warehouse. Подписка на очередь 'warehouse', в которую передаются сообщения для Sales
+To receive messages from the Warehouse.
 """
 import json
 import pika
@@ -10,13 +10,7 @@ from django.core.management.base import BaseCommand
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
-'''channel.exchange_declare(exchange='warehouse', exchange_type='fanout')
-
-result = channel.queue_declare(queue='', exclusive=True)
-queue_name = result.method.queue
-
-channel.queue_bind(exchange='warehouse', queue=queue_name)'''
-channel.queue_declare(queue='warehouse')
+channel.queue_declare(queue='warehouse', durable=True)
 
 
 def callback(ch, method, properties, body):
@@ -27,7 +21,7 @@ def callback(ch, method, properties, body):
     :param properties: user-defined properties on the message.
     :param body: the message received
     """
-    print("Receive items from warehouse")
+    print("Sales -> Receive items from Warehouse")
     data = json.loads(body)
     print(data)
 
@@ -48,10 +42,12 @@ def callback(ch, method, properties, body):
         item.delete()
         print("item deleted")
 
+    # ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         # to allow our callback function to receive messages from the queue.
         channel.basic_consume(queue='warehouse', on_message_callback=callback, auto_ack=True)
-        print("Consuming started...")
+        print("Sales Consumer started...")
         channel.start_consuming()       # tell our channel to start receiving messages
