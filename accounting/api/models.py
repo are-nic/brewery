@@ -17,11 +17,10 @@ class Item(models.Model):
 class OrderItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True)
     qty = models.PositiveIntegerField(default=0)
-    ordered_at = models.DateTimeField()
     total_sum = models.FloatField(default=0.00)
 
     class Meta:
-        ordering = ('ordered_at',)
+        ordering = ('item',)
         db_table = 'order_items'
 
     def __str__(self):
