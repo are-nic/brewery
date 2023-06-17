@@ -6,7 +6,6 @@ class ItemModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # Set up non-modified objects used by all test methods
         Item.objects.create(name='Beer', price='20.00', qty=1000)
 
     def setUp(self) -> None:
