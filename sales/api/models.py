@@ -24,6 +24,7 @@ class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_placed = models.BooleanField(default=False, help_text='The Order has been placed')
 
     class Meta:
         ordering = ('updated_at',)
