@@ -1,4 +1,8 @@
 from django.db import models
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 
 class Item(models.Model):
@@ -29,3 +33,10 @@ class OrderItem(models.Model):
     def save(self, *args, **kwargs):
         self.total_sum = float(self.item.price) * self.qty
         super(OrderItem, self).save(*args, **kwargs)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    """ create a token when user was created """
+    if created:
+        Token.objects.create(user=instance)
