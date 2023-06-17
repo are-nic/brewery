@@ -10,6 +10,6 @@ router.register('items', ItemViewSet, basename='items')
 
 urlpatterns = [
     path('register/', RegisterUserView.as_view(), name='register'),
-    path('token-auth/', views.obtain_auth_token)
+    path('token-auth/', views.obtain_auth_token, name='token')
 ]
 urlpatterns += router.urls
