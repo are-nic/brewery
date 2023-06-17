@@ -2,7 +2,7 @@ from django.test import TestCase
 from api.models import Item
 
 
-class AuthorModelTest(TestCase):
+class ItemModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
