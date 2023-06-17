@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 
 class OrderItemViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    All methods are available for Admins.
+    GET method are available for Admins.
     """
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
