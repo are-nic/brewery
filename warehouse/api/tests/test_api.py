@@ -10,6 +10,10 @@ User = get_user_model()
 
 
 class ItemsApiTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        User.objects.create_superuser(username='test', password='test')
+
     def setUp(self):
         """
         Create super_user, get his token and add it to headers
@@ -18,7 +22,7 @@ class ItemsApiTestCase(APITestCase):
         (каждая функция тестирования будет получать "свежую" версию данных объектов).
         """
         self.client = APIClient()
-        self.user = User.objects.create_superuser(username='test', password='test')
+        self.user = User.objects.get(username='test')
         url_token_auth = reverse('token')
         request_data = {"username": "test", "password": "test"}
         response = self.client.post(url_token_auth, request_data, format='json')
@@ -48,9 +52,9 @@ class ItemsApiTestCase(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
 
-    def test_detail_item(self):
+    def test_get_detail_put_patch_delete_item(self):
         """ Get item's details, put, patch and delete item """
-        item_id = Item.objects.get(name='Dark Beer').id
+        item_id = self.item_1.id
 
         url = reverse('items-detail', args=[item_id])
 
