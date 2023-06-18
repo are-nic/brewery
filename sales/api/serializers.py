@@ -13,7 +13,6 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    # item = serializers.CharField(source='item.name')
     max_qty = serializers.BooleanField(required=False, allow_null=True)
 
     class Meta:
