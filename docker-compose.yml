@@ -1,0 +1,109 @@
+version: '3'
+services:
+  accounting:
+    build:
+      context: ./accounting
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - MYSQL_HOST=accounting_db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=accounting_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+    depends_on:
+      - accounting_db
+      - rabbitmq
+    command: sh -c "python manage.py makemigrations && \
+                    python manage.py migrate && \
+                    python manage.py createsuperuser --noinput && \
+                    gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+
+  sales:
+    build:
+      context: ./sales
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - MYSQL_HOST=sales_db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=sales_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+    depends_on:
+      - sales_db
+      - rabbitmq
+    command: sh -c "python manage.py makemigrations && \
+                    python manage.py migrate && \
+                    python manage.py createsuperuser --noinput && \
+                    gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+
+  warehouse:
+    build:
+      context: ./warehouse
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - MYSQL_HOST=warehouse_db
+      - MYSQL_PORT=3306
+      - MYSQL_DB=warehouse_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+    depends_on:
+      - warehouse_db
+      - rabbitmq
+    command: sh -c "python manage.py makemigrations && \
+                    python manage.py migrate && \
+                    python manage.py createsuperuser --noinput && \
+                    gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+
+  accounting_db:
+    image: mysql:5.7
+    volumes:
+      - ./accounting/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=accounting_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+
+  sales_db:
+    image: mysql:5.7
+    volumes:
+      - ./sales/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=sales_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+
+  warehouse_db:
+    image: mysql:5.7
+    volumes:
+      - ./warehouse/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=warehouse_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+
+  rabbitmq:
+    image: rabbitmq:3.8-management
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - accounting
+      - sales
+      - warehouse
