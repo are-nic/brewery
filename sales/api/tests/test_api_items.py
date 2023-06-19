@@ -29,6 +29,8 @@ class ItemsApiTestCase(APITestCase):
         self.item_2 = Item.objects.create(name='Test Sider', price='30.00', qty=1000)
         self.item_3 = Item.objects.create(name='Test Vodka', price='10.00', qty=2000)
 
+        self.unauthorized_client = APIClient()
+
     def test_get_items(self):
         """ create some items and get list of them"""
         url = reverse('items-list')
@@ -37,6 +39,9 @@ class ItemsApiTestCase(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
 
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_get_detail_item(self):
         """ Get item's details"""
         url = reverse('items-detail', args=[self.item_1.id])
@@ -44,3 +49,6 @@ class ItemsApiTestCase(APITestCase):
         serializer_data = ItemSerializer(self.item_1).data
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
+
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)

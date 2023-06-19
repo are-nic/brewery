@@ -29,6 +29,8 @@ class ItemsApiTestCase(APITestCase):
         token = response.data.get('token')
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
 
+        self.unauthorized_client = APIClient()
+
         self.item_1 = Item.objects.create(name='Dark Beer', price='20.00', qty=100)
         self.item_2 = Item.objects.create(name='Sider', price='30.00', qty=1000)
         self.item_3 = Item.objects.create(name='Vodka', price='10.00', qty=2000)
@@ -44,6 +46,9 @@ class ItemsApiTestCase(APITestCase):
         response = self.client.post(url, item_data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
+        response = self.unauthorized_client.post(url, item_data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_get_items(self):
         """ create some items and get list of them"""
         url = reverse('items-list')
@@ -52,8 +57,10 @@ class ItemsApiTestCase(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
 
-    def test_get_detail_put_patch_delete_item(self):
-        """ Get item's details, put, patch and delete item """
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_detail_item(self):
         item_id = self.item_1.id
 
         url = reverse('items-detail', args=[item_id])
@@ -63,6 +70,13 @@ class ItemsApiTestCase(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
 
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_put_item(self):
+        item_id = self.item_1.id
+
+        url = reverse('items-detail', args=[item_id])
         put_item_data = {
             "name": "Beer",
             "price": "20.10",
@@ -71,6 +85,13 @@ class ItemsApiTestCase(APITestCase):
         response = self.client.put(url, put_item_data)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
+        response = self.unauthorized_client.put(url, put_item_data)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_patch_item(self):
+        item_id = self.item_1.id
+
+        url = reverse('items-detail', args=[item_id])
         patch_item_data = {
             "name": "Wine",
             "price": "25.00",
@@ -79,6 +100,15 @@ class ItemsApiTestCase(APITestCase):
         response = self.client.patch(url, patch_item_data)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
+        response = self.unauthorized_client.patch(url, patch_item_data)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_item(self):
+        item_id = self.item_1.id
+        url = reverse('items-detail', args=[item_id])
         response = self.client.delete(url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.unauthorized_client.delete(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

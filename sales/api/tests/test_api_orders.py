@@ -36,6 +36,8 @@ class OrderApiTestCase(APITestCase):
         token = response.data.get('token')
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token)
 
+        self.unauthorized_client = APIClient()
+
     def test_get_orders(self):
         """ get list of orders"""
         url = reverse('orders-list')
@@ -43,6 +45,9 @@ class OrderApiTestCase(APITestCase):
         serializer_data = OrderListSerializer([self.order_1, self.order_2], many=True).data
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
+
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_order_details(self):
         """ Get order's details """
@@ -53,6 +58,9 @@ class OrderApiTestCase(APITestCase):
         serializer_data = OrderDetailSerializer(self.order_1).data
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.data, serializer_data)
+
+        response = self.unauthorized_client.get(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_post_order(self):
         """ Create an order """
@@ -74,6 +82,9 @@ class OrderApiTestCase(APITestCase):
         response = self.client.post(url, order_data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
 
+        response = self.unauthorized_client.post(url, order_data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_put_order(self):
         """ Update the order """
         order_data = {
@@ -94,6 +105,9 @@ class OrderApiTestCase(APITestCase):
         response = self.client.put(url, order_data, format='json')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
+        response = self.unauthorized_client.put(url, order_data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_patch_order(self):
         """ Partial update the order """
         order_data = {
@@ -107,11 +121,17 @@ class OrderApiTestCase(APITestCase):
         }
 
         url = reverse('orders-detail', args=[self.order_2.id])
-        response = self.client.put(url, order_data, format='json')
+        response = self.client.patch(url, order_data, format='json')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        response = self.unauthorized_client.patch(url, order_data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_delete_order(self):
         """ Delete the Order """
         url = reverse('orders-detail', args=[self.order_2.id])
         response = self.client.delete(url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response = self.unauthorized_client.delete(url)
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
