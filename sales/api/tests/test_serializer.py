@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 from api.serializers import *
 from api.models import *
 from django.contrib.auth import get_user_model
@@ -36,12 +36,6 @@ class OrderSerializerTestCase(TestCase):
         cls.item = Item.objects.create(name='Test Beer', price='20.00', qty=100)
         cls.order = Order.objects.create(customer=cls.user, is_placed=False)
         cls.order_item = OrderItem.objects.create(order=cls.order, item=cls.item, qty=50)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.order.delete()
-        cls.item.delete()
-        cls.user.delete()
 
     def test_order_list_serializer(self):
         serializer_data = OrderListSerializer(self.order).data

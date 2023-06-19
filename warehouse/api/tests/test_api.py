@@ -12,7 +12,7 @@ User = get_user_model()
 class ItemsApiTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        User.objects.create_superuser(username='test', password='test')
+        User.objects.create_user(username='test', password='test', is_staff=True)
 
     def setUp(self):
         """

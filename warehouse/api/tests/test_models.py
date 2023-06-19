@@ -6,6 +6,7 @@ class ItemModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         Item.objects.create(name='Beer', price='20.00', qty=1000)
 
     def setUp(self) -> None:

@@ -27,6 +27,16 @@ class RegisterUserView(CreateAPIView):
             return Response(data)
 
 
+# ----------------------------------------- ITEM -----------------------------------
+class ItemViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    GET methods are available for Authenticated Users.
+    """
+    queryset = Item.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = ItemSerializer
+
+
 # --------------------------------------------- ORDERS --------------------------------------------
 class OrderViewSet(viewsets.ModelViewSet):
     """
@@ -80,7 +90,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             max_qty = item_data.get('max_qty')                          # получаем значение поля "Максимальное кол-во"
 
             try:
-                item = get_object_or_404(Item, pk=item_id)       # пробуем получить экземпляр Товара
+                item = Item.objects.get(pk=item_id)       # пробуем получить экземпляр Товара
             except Item.DoesNotExist:
                 return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -135,7 +145,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order_item_qty = item_data.get('qty')               # получаем кол-во, которое необходимо заказать
 
             try:
-                item = get_object_or_404(Item, pk=item_id)       # пробуем получить экземпляр Товара
+                item = Item.objects.get(pk=item_id)             # пробуем получить экземпляр Товара
             except Item.DoesNotExist:
                 return Response({'error': f"Item with id {item_id} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -147,7 +157,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         qty=order_item_qty
                     ))
                 else:
-                    return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'error': f"Not enough quantity available for item {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
 
             elif max_qty and not order_item_qty:              # Если поле 'max_qty' равно True и нет поля 'qty', выполнить логику обновления Заказа
                 if item.qty > 0:                            # если кол-во запрашиваемого товара больше 0
@@ -157,7 +167,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         qty=item.qty
                     ))
                 else:
-                    return Response({'error': f"Not enough quantity available for item: {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'error': f"Not enough quantity available for item {item.name}"}, status=status.HTTP_400_BAD_REQUEST)
 
         if len(order_items) > 0:                                # если в списке Товаров Заказа есть экземпляры
             for order_item in order_items:                      # перебираем все Товары заказа из списка
@@ -175,15 +185,3 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Сериализовать и вернуть созданный заказ
         serializer = self.get_serializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# ----------------------------------------- ITEM -----------------------------------
-class ItemViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    """
-    GET methods are available for Authenticated Users.
-    """
-    queryset = Item.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = ItemSerializer
-
-

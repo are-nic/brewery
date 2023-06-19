@@ -6,12 +6,8 @@ class ItemModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.item = Item.objects.create(name='Test Beer', price='20.00', qty=1000)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.item.delete()
-        print('Destroy test instances')
 
     def test_name_label(self):
         field_label = self.item._meta.get_field('name').verbose_name
@@ -38,14 +34,9 @@ class OrderItemModelTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        super().setUpTestData()
         cls.item = Item.objects.create(name='Test Beer', price='20.00', qty=1000)
         cls.order_item = OrderItem.objects.create(item=cls.item, qty=500)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.order_item.delete()
-        cls.item.delete()
-        print('Destroy test instances')
 
     def test_item_label(self):
         field_label = self.order_item._meta.get_field('item').verbose_name

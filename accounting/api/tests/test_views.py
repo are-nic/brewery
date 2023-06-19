@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 from rest_framework.test import force_authenticate
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIRequestFactory
@@ -13,6 +13,7 @@ User = get_user_model()
 class ViewSetTest(TestCase):
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.user = User.objects.create_user(username='test', password='test', is_staff=True)
         cls.token = cls.user.auth_token
 
@@ -20,13 +21,6 @@ class ViewSetTest(TestCase):
         cls.item = Item.objects.create(name='Test Beer', price='20.00', qty=1000)
         cls.order_item_1 = OrderItem.objects.create(item=cls.item, qty=50)
         cls.order_item_2 = OrderItem.objects.create(item=cls.item, qty=500)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.user.delete()
-        cls.item.delete()
-        cls.order_item_1.delete()
-        cls.order_item_2.delete()
 
     def test_get_order_items_view_set(self):
         view = OrderItemViewSet.as_view(actions={'get': 'list'})
