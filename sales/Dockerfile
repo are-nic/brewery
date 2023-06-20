@@ -10,8 +10,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Копирование кода проекта в контейнер
-COPY . /warehouse
-WORKDIR /warehouse
+COPY . /sales
+WORKDIR /sales
 
 # Установка зависимостей Python
 COPY ../requirements.txt .

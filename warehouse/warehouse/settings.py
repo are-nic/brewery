@@ -69,10 +69,10 @@ WSGI_APPLICATION = 'warehouse.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'warehouse',
+        'NAME': 'warehouse_db',
         'USER': 'brewery',
         'PASSWORD': 'brewery',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }

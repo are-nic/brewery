@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'accounting.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'accounting',
+        'NAME': 'accounting_db',
         'USER': 'brewery',
         'PASSWORD': 'brewery',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on

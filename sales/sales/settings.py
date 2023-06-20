@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'sales.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sales',
+        'NAME': 'sales_db',
         'USER': 'brewery',
         'PASSWORD': 'brewery',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
