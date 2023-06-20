@@ -68,6 +68,9 @@ services:
       - MYSQL_DATABASE=accounting_db
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
+      - MYSQL_ROOT_PASSWORD=brewery
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
     ports:
       - '3306:3306'
 
@@ -79,6 +82,9 @@ services:
       - MYSQL_DATABASE=sales_db
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
+      - MYSQL_ROOT_PASSWORD=brewery
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
     ports:
       - '3306:3306'
 
@@ -90,6 +96,9 @@ services:
       - MYSQL_DATABASE=warehouse_db
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
+      - MYSQL_ROOT_PASSWORD=brewery
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
     ports:
       - '3306:3306'
 
