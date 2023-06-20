@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-+rg=ct*1t3okvir3%ke(d5zza(fphj(jwujru#f=ll&0j#g^g!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["31.171.250.203:8000", "31.171.250.203", "0.0.0.0", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -71,7 +71,7 @@ DATABASES = {
         'NAME': 'accounting_db',
         'USER': 'brewery',
         'PASSWORD': 'brewery',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }

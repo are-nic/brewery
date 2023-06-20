@@ -5,7 +5,7 @@ services:
       context: ./accounting
       dockerfile: Dockerfile
     expose:
-      - '8001'
+      - '8000'
     environment:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
@@ -27,7 +27,7 @@ services:
       context: ./sales
       dockerfile: Dockerfile
     expose:
-      - '8000'
+      - '8001'
     environment:
       - DJANGO_SUPERUSER_PASSWORD=admin
       - DJANGO_SUPERUSER_USERNAME=admin
@@ -50,14 +50,8 @@ services:
       dockerfile: Dockerfile
     expose:
       - '8002'
-    environment:
-      - DJANGO_SUPERUSER_PASSWORD=admin
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - MYSQL_HOST=warehouse_db
-      - MYSQL_PORT=3306
-      - MYSQL_DB=warehouse_db
-      - MYSQL_USER=brewery
-      - MYSQL_PASSWORD=brewery
+    env_file:
+      - ./warehouse/.env.dev
     depends_on:
       - warehouse_db
       - rabbitmq
@@ -115,9 +109,8 @@ services:
   nginx:
     build: ./nginx
     ports:
-      # - "80:80"
-      # - "443:443"
-      - "1337:80"
+      - "80:80"
+      - "443:443"
     depends_on:
       - accounting
       - sales

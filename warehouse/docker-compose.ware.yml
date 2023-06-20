@@ -1,0 +1,50 @@
+version: '3.10'
+services:
+
+  warehouse:
+    build:
+      context: ./warehouse
+      dockerfile: Dockerfile
+    ports:
+      - '8000:8000'
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - warehouse_db
+      - rabbitmq
+    command: sh -c "python manage.py makemigrations && \
+                    python manage.py migrate && \
+                    python manage.py createsuperuser --noinput && \
+                    gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+
+  warehouse_db:
+    image: mysql:5.7
+    volumes:
+      - ./warehouse/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=warehouse_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+    ports:
+      - '3306:3306'
+
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=brewery
+      - RABBITMQ_DEFAULT_PASS=brewery
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+
+  nginx:
+    build: ./nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - warehouse
