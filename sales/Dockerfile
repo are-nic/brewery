@@ -1,27 +1,17 @@
 # Базовый образ Python
-FROM python:3.10-alpine3.18
+FROM python:3.10
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 # Установка зависимостей
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        nginx \
-        default-libmysqlclient-dev \
-        rabbitmq-server \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apk update && apk add mysql-server libmysqlclient-dev
 
 # Копирование кода проекта в контейнер
 COPY . /sales
 WORKDIR /sales
 
 # Установка зависимостей Python
-COPY ../requirements.txt .
+COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Копирование файлов настроек Nginx
-COPY nginx.conf /etc/nginx/sites-available/default
-
-# Открытие порта для Gunicorn
-EXPOSE 8000
-
-# Запуск сервера Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "project.wsgi:application"]
