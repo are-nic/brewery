@@ -1,5 +1,17 @@
 version: '3.10'
 services:
+
+  rabbitmq:
+    image: rabbitmq:3.12.0
+    hostname: rabbitmq
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=brewery
+      - RABBITMQ_DEFAULT_PASS=brewery
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+
   accounting:
     build:
       context: ./accounting
@@ -49,7 +61,9 @@ services:
                     gunicorn --bind 0.0.0.0:8002 project.wsgi:application"
 
   accounting_db:
-    image: mysql:5.7
+    image: mysql:8.0.33
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./accounting/mysql:/var/lib/mysql
     environment:
@@ -58,12 +72,14 @@ services:
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
       - '3306'
 
   sales_db:
-    image: mysql:5.7
+    image: mysql:8.0.33
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./sales/mysql:/var/lib/mysql
     environment:
@@ -72,12 +88,14 @@ services:
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
-      - '3307'
+      - '3306'
 
   warehouse_db:
-    image: mysql:5.7
+    image: mysql:8.0.33
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./warehouse/mysql:/var/lib/mysql
     environment:
@@ -86,22 +104,9 @@ services:
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
-      - '3308'
-
-  rabbitmq:
-    image: rabbitmq:3.10.7-management
-    hostname: rabbitmq
-    restart: always
-    environment:
-      - RABBITMQ_DEFAULT_USER=brewery
-      - RABBITMQ_DEFAULT_PASS=brewery
-    volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
-    ports:
-      - '15672:15672'
-      - '5672:5672'
+      - '3306'
 
   nginx:
     build: ./nginx
