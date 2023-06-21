@@ -8,7 +8,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=brewery
       - RABBITMQ_DEFAULT_PASS=brewery
-      # - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=+Q classic_queue_type_delivery_support
     expose:
       - 5672
       - 15672
@@ -27,7 +26,7 @@ services:
     command: sh -c "python manage.py makemigrations && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn --bind 0.0.0.0:8000 project.wsgi:application"
+                    gunicorn --bind 0.0.0.0:8000 accounting.wsgi:application"
 
   sales:
     build:
@@ -43,7 +42,7 @@ services:
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn --bind 0.0.0.0:8001 project.wsgi:application"
+                    gunicorn --bind 0.0.0.0:8001 sales.wsgi:application"
 
   warehouse:
     build:
@@ -59,7 +58,7 @@ services:
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --email with --noinput && \
-                    gunicorn --bind 0.0.0.0:8002 project.wsgi:application"
+                    gunicorn --bind 0.0.0.0:8002 warehouse.wsgi:application"
 
   accounting_db:
     image: mysql:8.0.33
