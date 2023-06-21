@@ -11,7 +11,7 @@ services:
       - ./.env.dev
     depends_on:
       - warehouse_db
-      - rabbitmq
+      # - rabbitmq
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
