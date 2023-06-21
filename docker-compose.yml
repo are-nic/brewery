@@ -57,7 +57,7 @@ services:
       - rabbitmq
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
-                    python manage.py createsuperuser --email with --noinput && \
+                    python manage.py createsuperuser --noinput && \
                     gunicorn --bind 0.0.0.0:8002 warehouse.wsgi:application"
 
   accounting_db:
@@ -71,8 +71,6 @@ services:
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
       - '3306'
 
@@ -87,8 +85,6 @@ services:
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
       - '3306'
 
@@ -103,8 +99,6 @@ services:
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_RANDOM_ROOT_PASSWORD=no
     expose:
       - '3306'
 
