@@ -12,41 +12,40 @@ services:
       - 5672
       - 15672
 
-  accounting:
+  warehouse:
     build:
       context: .
       dockerfile: Dockerfile
     expose:
-      - '8000'
+      - '8002'
     env_file:
       - ./.env.dev
     depends_on:
-      - accounting_db
+      - warehouse_db
       - rabbitmq
-    command: sh -c "python manage.py makemigrations && \
+    command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
+                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8000"
 
-  accounting_db:
+  warehouse_db:
     image: mysql:8.0.33
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=accounting_db
+      - MYSQL_DATABASE=warehouse_db
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=brewery
     expose:
       - '3306'
 
-
   nginx:
     build: ./nginx
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+      - "443:443"
     depends_on:
-      - accounting
+      - warehouse
