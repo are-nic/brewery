@@ -1,20 +1,9 @@
 version: '3.10'
 services:
 
-  rabbitmq:
-    image: rabbitmq:3.12.0-management
-    hostname: rabbitmq
-    # restart: always
-    environment:
-      - RABBITMQ_DEFAULT_USER=brewery
-      - RABBITMQ_DEFAULT_PASS=brewery
-    expose:
-      - 5672
-      - 15672
-
   warehouse:
     build:
-      context: .
+      context: ./warehouse
       dockerfile: Dockerfile
     expose:
       - '8000'

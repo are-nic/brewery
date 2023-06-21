@@ -6,10 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Копирование кода проекта в контейнер
-WORKDIR /warehouse
+WORKDIR /usr/src/warehouse
 
 # Установка зависимостей Python
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY . /warehouse
+COPY . .
