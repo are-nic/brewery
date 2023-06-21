@@ -26,7 +26,7 @@ services:
     command: sh -c "python manage.py makemigrations && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn --bind 0.0.0.0:8000 accounting.wsgi:application"
+                    gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
 
   sales:
     build:
@@ -42,7 +42,7 @@ services:
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn --bind 0.0.0.0:8001 sales.wsgi:application"
+                    gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
 
   warehouse:
     build:
@@ -58,7 +58,7 @@ services:
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
-                    gunicorn --bind 0.0.0.0:8002 warehouse.wsgi:application"
+                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
 
   accounting_db:
     image: mysql:8.0.33

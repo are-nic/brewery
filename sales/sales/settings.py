@@ -62,16 +62,14 @@ WSGI_APPLICATION = 'sales.wsgi.application'
 
 DATABASES = {
     'default': {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
-        "USER": os.environ.get("SQL_USER", "user"),
-        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
-        "HOST": os.environ.get("SQL_HOST", "localhost"),
-        "PORT": os.environ.get("SQL_PORT", "5432")
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.mysql"),
+        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "sales_db"),
+        "USER": os.environ.get("SQL_USER", "brewery"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "brewery"),
+        "HOST": os.environ.get("SQL_HOST", "sales_db"),
+        "PORT": os.environ.get("SQL_PORT", "3306")
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

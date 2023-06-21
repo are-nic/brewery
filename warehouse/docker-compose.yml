@@ -1,0 +1,52 @@
+version: '3.10'
+services:
+
+  rabbitmq:
+    image: rabbitmq:3.12.0-management
+    hostname: rabbitmq
+    # restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=brewery
+      - RABBITMQ_DEFAULT_PASS=brewery
+    expose:
+      - 5672
+      - 15672
+
+  accounting:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - '8000'
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - accounting_db
+      - rabbitmq
+    command: sh -c "python manage.py makemigrations && \
+                    python manage.py migrate && \
+                    python manage.py createsuperuser --noinput && \
+                    gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
+
+  accounting_db:
+    image: mysql:8.0.33
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=accounting_db
+      - MYSQL_USER=brewery
+      - MYSQL_PASSWORD=brewery
+      - MYSQL_ROOT_PASSWORD=brewery
+    expose:
+      - '3306'
+
+
+  nginx:
+    build: ./nginx
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - accounting
