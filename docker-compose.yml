@@ -1,18 +1,8 @@
-version: '3.10'
+version: '3'
 services:
-
-  rabbitmq:
-    image: rabbitmq:3.12.0-management
-    hostname: rabbitmq
-    # restart: always
-    environment:
-      - RABBITMQ_DEFAULT_USER=brewery
-      - RABBITMQ_DEFAULT_PASS=brewery
-    expose:
-      - 5672
-      - 15672
-
   accounting:
+    container_name: accounting_api
+    restart: on-failure
     build:
       context: ./accounting
       dockerfile: Dockerfile
@@ -21,14 +11,22 @@ services:
     env_file:
       - ./accounting/.env.dev
     depends_on:
-      - accounting_db
-      - rabbitmq
-    command: sh -c "python manage.py makemigrations && \
+      # rabbitmq:
+      # condition: service_healthy      # пока не запуститься служба RabbitMQ не запускать сервис Accounting
+      accounting_db:
+        condition: service_healthy      # пока не запуститься База данных не запускать сервис Accounting
+    command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
+                    python manage.py collectstatic --no-input && \
                     gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      # для обмена данными между локальной директорией проекта и такой же директорией в контейнере (/path/on/host:/path/in/container)
+      - ./accounting/static:/usr/src/accounting/static
 
   sales:
+    container_name: sales_api
+    restart: on-failure
     build:
       context: ./sales
       dockerfile: Dockerfile
@@ -37,35 +35,46 @@ services:
     env_file:
       - ./sales/.env.dev
     depends_on:
-      - sales_db
-      - rabbitmq
+      # rabbitmq:
+      # condition: service_healthy
+      sales_db:
+        condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
+                    python manage.py collectstatic --no-input && \
                     gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
+    volumes:
+        - ./sales/static:/usr/src/sales/static
 
   warehouse:
-    build:
-      context: ./warehouse
-      dockerfile: Dockerfile
+    container_name: warehouse_api
+    restart: on-failure
+    build: ./warehouse
     expose:
-      - '8002'
+      - '8000'
     env_file:
       - ./warehouse/.env.dev
     depends_on:
-      - warehouse_db
-      - rabbitmq
+      # rabbitmq:
+      # condition: service_healthy
+      warehouse_db:
+        condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
+                    python manage.py collectstatic --no-input && \
                     gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
+    volumes:
+      - ./warehouse/static:/usr/src/warehouse/static
 
   accounting_db:
+    container_name: accounting_db
     image: mysql:8.0.33
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - ./accounting/mysql:/var/lib/mysql
+      - ./accounting/mysql:/usr/src/accounting/mysql
     environment:
       - MYSQL_DATABASE=accounting_db
       - MYSQL_USER=brewery
@@ -73,13 +82,19 @@ services:
       - MYSQL_ROOT_PASSWORD=brewery
     expose:
       - '3306'
+    healthcheck:
+      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   sales_db:
+    container_name: sales_db
     image: mysql:8.0.33
     restart: always
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - ./sales/mysql:/var/lib/mysql
+      - ./sales/mysql:usr/src/sales/mysql
     environment:
       - MYSQL_DATABASE=sales_db
       - MYSQL_USER=brewery
@@ -87,13 +102,19 @@ services:
       - MYSQL_ROOT_PASSWORD=brewery
     expose:
       - '3306'
+    healthcheck:
+      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   warehouse_db:
+    container_name: warehouse_db
     image: mysql:8.0.33
-    restart: always
+    restart: on-failure
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - ./warehouse/mysql:/var/lib/mysql
+      - ./warehouse/mysql:/usr/src/warehouse/mysql/
     environment:
       - MYSQL_DATABASE=warehouse_db
       - MYSQL_USER=brewery
@@ -101,6 +122,11 @@ services:
       - MYSQL_ROOT_PASSWORD=brewery
     expose:
       - '3306'
+    healthcheck:
+      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   nginx:
     build: ./nginx
@@ -111,3 +137,18 @@ services:
       - accounting
       - sales
       - warehouse
+    volumes:
+      - ./static:/usr/src/accounting/static
+      - ./static:/usr/src/sales/static
+      - ./static:/usr/src/warehouse/static
+
+  # rabbitmq:
+  #   image: rabbitmq:3.12.0-management
+  #  hostname: rabbitmq
+    # restart: always
+  #  environment:
+  #    - RABBITMQ_DEFAULT_USER=brewery
+   #   - RABBITMQ_DEFAULT_PASS=brewery
+   # expose:
+    #  - 5672
+    #  - 15672
