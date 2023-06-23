@@ -72,19 +72,19 @@ services:
   db:
     container_name: all_dbs
     image: mysql:8.0.33
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
+    # restart: always
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./mysql:/docker-entrypoint-initdb.d
     environment:
-      - MYSQL_USER=brewery
-      - MYSQL_PASSWORD=brewery
+      # - MYSQL_USER=brewery
+      # - MYSQL_PASSWORD=brewery
       - MYSQL_ROOT_PASSWORD=root
       - TEST_MYSQL_DATABASE=account_db
     expose:
       - '3306'
     healthcheck:
-      test: "mysql $$TEST_MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      test: "mysql $$TEST_MYSQL_DATABASE -u brewery -p brewery -e 'SELECT 1;'"
       interval: 20s
       timeout: 10s
       retries: 5
