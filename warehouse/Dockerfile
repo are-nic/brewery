@@ -11,5 +11,7 @@ WORKDIR /usr/src/warehouse
 # Установка зависимостей Python
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
+# создание директории для статики
+RUN mkdir ./static
 
 COPY . .
