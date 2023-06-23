@@ -1,4 +1,4 @@
-"""
+'''"""
 Передача сообщений декларируется через очередь "warehouse", в которую передаются сообщения из Warehouse и принимаются в Sales
 """
 import json
@@ -20,4 +20,4 @@ def publish(method, body):
     :return:
     """
     properties = pika.BasicProperties(method)
-    channel.basic_publish(exchange='', routing_key='warehouse', body=json.dumps(body), properties=properties)
+    channel.basic_publish(exchange='', routing_key='warehouse', body=json.dumps(body), properties=properties)'''
