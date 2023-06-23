@@ -68,7 +68,7 @@ DATABASES = {
         "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "accounting_db"),
         "USER": os.environ.get("SQL_USER", "brewery"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", "brewery"),
-        "HOST": os.environ.get("SQL_HOST", "accounting_db"),
+        "HOST": os.environ.get("SQL_HOST", "db"),
         "PORT": os.environ.get("SQL_PORT", "3306")
     }
 }

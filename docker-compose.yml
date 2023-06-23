@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   accounting:
     container_name: accounting_api
     restart: on-failure
@@ -13,7 +14,7 @@ services:
     depends_on:
       # rabbitmq:
       # condition: service_healthy      # пока не запуститься служба RabbitMQ не запускать сервис Accounting
-      accounting_db:
+      db:
         condition: service_healthy      # пока не запуститься База данных не запускать сервис Accounting
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
@@ -37,7 +38,7 @@ services:
     depends_on:
       # rabbitmq:
       # condition: service_healthy
-      sales_db:
+      db:
         condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
@@ -58,7 +59,7 @@ services:
     depends_on:
       # rabbitmq:
       # condition: service_healthy
-      warehouse_db:
+      db:
         condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
                     python manage.py migrate && \
@@ -68,62 +69,25 @@ services:
     volumes:
       - ./warehouse/static:/usr/src/warehouse/static
 
-  accounting_db:
-    container_name: accounting_db
+  db:
+    container_name: all_dbs
     image: mysql:8.0.33
     restart: always
-    command: --default-authentication-plugin=mysql_native_password
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ./accounting/mysql:/usr/src/accounting/mysql
+      - ./mysql:/docker-entrypoint-initdb.d
     environment:
-      - MYSQL_DATABASE=accounting_db
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
-      - MYSQL_ROOT_PASSWORD=brewery
+      # - MYSQL_ROOT_PASSWORD=root
+      - TEST_MYSQL_DATABASE=account_db
     expose:
       - '3306'
     healthcheck:
-      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-  sales_db:
-    container_name: sales_db
-    image: mysql:8.0.33
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - ./sales/mysql:usr/src/sales/mysql
-    environment:
-      - MYSQL_DATABASE=sales_db
-      - MYSQL_USER=brewery
-      - MYSQL_PASSWORD=brewery
-      - MYSQL_ROOT_PASSWORD=brewery
-    expose:
-      - '3306'
-    healthcheck:
-      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-  warehouse_db:
-    container_name: warehouse_db
-    image: mysql:8.0.33
-    restart: on-failure
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - ./warehouse/mysql:/usr/src/warehouse/mysql/
-    environment:
-      - MYSQL_DATABASE=warehouse_db
-      - MYSQL_USER=brewery
-      - MYSQL_PASSWORD=brewery
-      - MYSQL_ROOT_PASSWORD=brewery
-    expose:
-      - '3306'
-    healthcheck:
-      test: "mysql $$MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
+      test: "mysql $$TEST_MYSQL_DATABASE -u$$MYSQL_USER -p$$MYSQL_PASSWORD -e 'SELECT 1;'"
       interval: 10s
       timeout: 10s
       retries: 5

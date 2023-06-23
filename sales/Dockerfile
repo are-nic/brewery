@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Копирование кода проекта в контейнер
-WORKDIR /usr/src//sales
+WORKDIR /usr/src/sales
 
 # Установка зависимостей Python
 COPY ./requirements.txt .
