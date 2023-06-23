@@ -21,7 +21,7 @@ services:
                     gunicorn warehouse.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       # для обмена данными между локальной директорией проекта и такой же директорией в контейнере (/path/on/host:/path/in/container)
-      - static_volume:/usr/src/warehouse/static
+      - ./static:/usr/src/warehouse/static
 
   warehouse_db:
     container_name: warehouse_db
@@ -29,7 +29,7 @@ services:
     restart: on-failure
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - mysql_data:/usr/src/warehouse/mysql/
+      - ./mysql:/usr/src/warehouse/mysql/
     environment:
       - MYSQL_DATABASE=warehouse_db
       - MYSQL_USER=brewery
@@ -54,8 +54,4 @@ services:
     depends_on:
       - warehouse
     volumes:
-      - static_volume:/usr/src/warehouse/static
-
-volumes:
-  mysql_data:
-  static_volume:
+      - ./static:/usr/src/warehouse/static
