@@ -82,7 +82,7 @@ services:
     environment:
       - MYSQL_USER=brewery
       - MYSQL_PASSWORD=brewery
-      # - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
       - TEST_MYSQL_DATABASE=account_db
     expose:
       - '3306'
