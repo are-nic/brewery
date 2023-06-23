@@ -29,7 +29,7 @@ services:
     restart: on-failure
     command: --default-authentication-plugin=mysql_native_password
     volumes:
-      - mysql_data:/var/lib/mysql/data/
+      - mysql_data:/usr/src/warehouse/mysql/
     environment:
       - MYSQL_DATABASE=warehouse_db
       - MYSQL_USER=brewery
