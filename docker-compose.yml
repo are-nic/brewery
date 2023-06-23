@@ -81,10 +81,10 @@ services:
     expose:
       - '3306'
     healthcheck:
-      test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
-      interval: 20s
-      timeout: 10s
-      retries: 5
+      test: 'mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD'
+      interval: 10s   # время в течение которого сервер ждет ответа по тестовой команде
+      timeout: 5s    # время задержки между проверками
+      retries: 5      # кол-во сбоев, после которых контейнер считается неработоспособным
 
   nginx:
     build: ./nginx
