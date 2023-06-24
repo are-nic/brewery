@@ -12,8 +12,8 @@ services:
     env_file:
       - ./accounting/.env.dev
     depends_on:
-      # rabbitmq:
-      # condition: service_healthy      # пока не запуститься служба RabbitMQ не запускать сервис Accounting
+      rabbitmq:
+        condition: service_healthy      # пока не запуститься служба RabbitMQ не запускать сервис Accounting
       db:
         condition: service_healthy      # пока не запуститься База данных не запускать сервис Accounting
     command: sh -c "python manage.py makemigrations api && \
@@ -36,8 +36,8 @@ services:
     env_file:
       - ./sales/.env.dev
     depends_on:
-      # rabbitmq:
-      # condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       db:
         condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
@@ -46,7 +46,7 @@ services:
                     python manage.py collectstatic --no-input && \
                     gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
     volumes:
-        - ./sales/static:/usr/src/sales/static
+      - ./sales/static:/usr/src/sales/static
 
   warehouse:
     container_name: warehouse_api
@@ -57,8 +57,8 @@ services:
     env_file:
       - ./warehouse/.env.dev
     depends_on:
-      # rabbitmq:
-      # condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       db:
         condition: service_healthy
     command: sh -c "python manage.py makemigrations api && \
@@ -72,7 +72,7 @@ services:
   db:
     container_name: mysql
     image: mysql:8.0.33
-    restart: always
+    restart: on-failure
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - ./mysql:/docker-entrypoint-initdb.d
@@ -88,6 +88,7 @@ services:
 
   nginx:
     container_name: nginx
+    restart: on-failure
     build: ./nginx
     ports:
       - "80:80"
@@ -103,13 +104,19 @@ services:
       - ./sales/static:/usr/src/sales/static
       - ./warehouse/static:/usr/src/warehouse/static
 
-  # rabbitmq:
-  #   image: rabbitmq:3.12.0-management
-  #  hostname: rabbitmq
-    # restart: always
-  #  environment:
-  #    - RABBITMQ_DEFAULT_USER=brewery
-   #   - RABBITMQ_DEFAULT_PASS=brewery
-   # expose:
-    #  - 5672
-    #  - 15672
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.12.0-management
+    hostname: rabbitmq
+    restart: on-failure
+    environment:
+      - RABBITMQ_DEFAULT_USER=brewery
+      - RABBITMQ_DEFAULT_PASS=brewery
+    expose:
+      - 5672
+      - 15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 3

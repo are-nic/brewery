@@ -1,8 +1,8 @@
-'''import json
+import json
 import pika
 
 # establishing a connection with the RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='sales', exchange_type='direct')
@@ -31,5 +31,5 @@ def publish_to_accounting(method, body):
     :return:
     """
     properties = pika.BasicProperties(method)
-    channel.basic_publish(exchange='sales', routing_key='to_accounting', body=json.dumps(body), properties=properties)'''
+    channel.basic_publish(exchange='sales', routing_key='to_accounting', body=json.dumps(body), properties=properties)
 

@@ -7,7 +7,7 @@ from api.models import Item
 from django.core.management.base import BaseCommand
 
 # connect to RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', heartbeat=600, blocked_connection_timeout=300))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
 channel = connection.channel()
 
 channel.queue_declare(queue='warehouse', durable=True)
