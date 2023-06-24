@@ -44,7 +44,7 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
+                    gunicorn sales.wsgi:application --bind 0.0.0.0:8000"
     volumes:
         - ./sales/static:/usr/src/sales/static
 
@@ -65,7 +65,7 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
+                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - ./warehouse/static:/usr/src/warehouse/static
 
