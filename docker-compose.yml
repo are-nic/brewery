@@ -32,7 +32,7 @@ services:
       context: ./sales
       dockerfile: Dockerfile
     expose:
-      - '8000'
+      - '8001'
     env_file:
       - ./sales/.env.dev
     depends_on:
@@ -44,7 +44,7 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn sales.wsgi:application --bind 0.0.0.0:8000"
+                    gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
     volumes:
         - ./sales/static:/usr/src/sales/static
 
@@ -53,7 +53,7 @@ services:
     restart: on-failure
     build: ./warehouse
     expose:
-      - '8000'
+      - '8002'
     env_file:
       - ./warehouse/.env.dev
     depends_on:
@@ -65,7 +65,7 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8000"
+                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
     volumes:
       - ./warehouse/static:/usr/src/warehouse/static
 
@@ -91,16 +91,17 @@ services:
     build: ./nginx
     ports:
       - "80:80"
-      #- "8001:80"
-      #- "8002:80"
+      - "8000:80"
+      - "8001:80"
+      - "8002:80"
     depends_on:
       - accounting
       - sales
       - warehouse
     volumes:
-      - ./static:/usr/src/accounting/static
-      - ./static:/usr/src/sales/static
-      - ./static:/usr/src/warehouse/static
+      - ./accounting/static:/usr/src/accounting/static
+      - ./sales/static:/usr/src/sales/static
+      - ./warehouse/static:/usr/src/warehouse/static
 
   # rabbitmq:
   #   image: rabbitmq:3.12.0-management
