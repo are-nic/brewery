@@ -123,6 +123,7 @@ services:
 
   consumer_warehouse:
     build: ./warehouse
+    restart: on-failure
     container_name: consumer_warehouse
     env_file:
       - ./warehouse/.env.dev
@@ -137,6 +138,7 @@ services:
 
   consumer_sales:
     build: ./sales
+    restart: on-failure
     container_name: consumer_sales
     env_file:
       - ./sales/.env.dev
@@ -152,6 +154,7 @@ services:
   consumer_accounting:
     build: ./accounting
     container_name: consumer_accounting
+    restart: on-failure
     env_file:
       - ./accounting/.env.dev
     depends_on:
