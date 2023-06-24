@@ -1,4 +1,4 @@
-import json
+'''import json
 import pika
 
 # establishing a connection with the RabbitMQ server
@@ -31,5 +31,5 @@ def publish_to_accounting(method, body):
     :return:
     """
     properties = pika.BasicProperties(method)
-    channel.basic_publish(exchange='sales', routing_key='to_accounting', body=json.dumps(body), properties=properties)
+    channel.basic_publish(exchange='sales', routing_key='to_accounting', body=json.dumps(body), properties=properties)'''
 
