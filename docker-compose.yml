@@ -20,7 +20,6 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    python manage.py consumer && \
                     gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       # для обмена данными между локальной директорией проекта и такой же директорией в контейнере (/path/on/host:/path/in/container)
@@ -45,7 +44,6 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    python manage.py consumer && \
                     gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
     volumes:
       - ./sales/static:/usr/src/sales/static
@@ -67,7 +65,6 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    python manage.py consumer && \
                     gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
     volumes:
       - ./warehouse/static:/usr/src/warehouse/static
@@ -123,3 +120,33 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  consumer_warehouse:
+    build: ./warehouse
+    container_name: consumer_warehouse
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: sh -c "python manage.py consumer"
+
+  consumer_sales:
+    build: ./sales
+    container_name: consumer_sales
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: sh -c "python manage.py consumer"
+
+  consumer_accounting:
+    build: ./accounting
+    container_name: consumer_accounting
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    command: sh -c "python manage.py consumer"
