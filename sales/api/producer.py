@@ -6,8 +6,6 @@ connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heart
 channel = connection.channel()
 
 channel.exchange_declare(exchange='sales', exchange_type='direct')
-# channel.queue_declare(queue='from_sales_to_ware', durable=True)
-# channel.queue_declare(queue='from_sales_to_acc', durable=True)
 
 
 def publish_to_warehouse(method, body):
