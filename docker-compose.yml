@@ -20,7 +20,8 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn accounting.wsgi:application --bind 0.0.0.0:8000"
+                    gunicorn accounting.wsgi:application --bind 0.0.0.0:8000 && \
+                    python manage.py consumer"
     volumes:
       # для обмена данными между локальной директорией проекта и такой же директорией в контейнере (/path/on/host:/path/in/container)
       - ./accounting/static:/usr/src/accounting/static
@@ -44,7 +45,8 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn sales.wsgi:application --bind 0.0.0.0:8001"
+                    gunicorn sales.wsgi:application --bind 0.0.0.0:8001 && \
+                    python manage.py consumer"
     volumes:
       - ./sales/static:/usr/src/sales/static
 
@@ -65,7 +67,8 @@ services:
                     python manage.py migrate && \
                     python manage.py createsuperuser --noinput && \
                     python manage.py collectstatic --no-input && \
-                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002"
+                    gunicorn warehouse.wsgi:application --bind 0.0.0.0:8002 && \
+                    python manage.py consumer"
     volumes:
       - ./warehouse/static:/usr/src/warehouse/static
 
