@@ -124,29 +124,41 @@ services:
   consumer_warehouse:
     build: ./warehouse
     container_name: consumer_warehouse
+    env_file:
+      - ./warehouse/.env.dev
     depends_on:
       rabbitmq:
         condition: service_healthy
       db:
         condition: service_healthy
+      warehouse:
+        condition: service_started
     command: sh -c "python manage.py consumer"
 
   consumer_sales:
     build: ./sales
     container_name: consumer_sales
+    env_file:
+      - ./sales/.env.dev
     depends_on:
       rabbitmq:
         condition: service_healthy
       db:
         condition: service_healthy
+      sales:
+          condition: service_started
     command: sh -c "python manage.py consumer"
 
   consumer_accounting:
     build: ./accounting
     container_name: consumer_accounting
+    env_file:
+      - ./accounting/.env.dev
     depends_on:
       rabbitmq:
         condition: service_healthy
       db:
         condition: service_healthy
+      accounting:
+        condition: service_started
     command: sh -c "python manage.py consumer"
