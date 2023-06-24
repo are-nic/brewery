@@ -110,8 +110,8 @@ services:
     hostname: rabbitmq
     restart: on-failure
     environment:
-      - RABBITMQ_DEFAULT_USER=brewery
-      - RABBITMQ_DEFAULT_PASS=brewery
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     expose:
       - 5672
       - 15672
