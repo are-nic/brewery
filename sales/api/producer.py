@@ -2,7 +2,7 @@ import json
 import pika
 
 # establishing a connection with the RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=0, blocked_connection_timeout=300))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='sales', exchange_type='direct')

@@ -6,7 +6,7 @@ import pika
 from api.models import Item, OrderItem
 from django.core.management.base import BaseCommand
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=0, blocked_connection_timeout=300, ))
 channel = connection.channel()
 
 channel.exchange_declare(exchange='sales', exchange_type='direct')

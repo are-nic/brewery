@@ -7,7 +7,7 @@ from api.models import Item
 from django.core.management.base import BaseCommand
 
 # connect to RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=600, blocked_connection_timeout=300))
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=0, blocked_connection_timeout=300))
 channel = connection.channel()
 
 channel.queue_declare(queue='warehouse', durable=True)
@@ -31,11 +31,12 @@ def callback(ch, method, properties, body):
 
     elif properties.content_type == 'item_updated':
         item = Item.objects.get(id=data['id'])
-        item.name = data['name']
-        item.price = data['price']
-        item.qty = data['qty']
-        item.save()
-        print("item updated")
+        if item.qty != data['qty']:     # если кол-во текущего Товара не равно кол-ву, переданному при обновлении, то обновляем товар
+            item.name = data['name']
+            item.price = data['price']
+            item.qty = data['qty']
+            item.save()
+            print("item updated")
 
     elif properties.content_type == 'item_deleted':
         item = Item.objects.get(id=data)
