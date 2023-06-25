@@ -79,6 +79,36 @@ Response:
         "response": "You've been registered"
     }   
 
+Create an order via link and POST method: http://31.171.250.203/sales/api/v1/orders/
+
+If you want to get maximum quantity of any item then you need to use 
+request's body key **"max_qty": true** and don't use key **"qty"** for item. 
+Also specify the item ID in key **"item"**. For example:
+
+    {
+        "items": [
+            {
+                "item": 1,
+                "max_qty": true
+            }
+      ],
+      "is_placed": false
+    }
+
+If you need a certain quantity of item then use key **"qty"** instead **"max_qty"**.
+If the quantity available is insufficient then you get an error
+
+    {
+        "error": "Not enough quantity available for item <Item's name>"
+    }
+
+Until the key **"is_placed": true** is passed in the body of the order request the order isn't 
+complete, and it can to change via PUT or PATCH. If **"is_placed": true** then you can't change
+the order, and you have to create another. In this case you get an error message in response's body:
+
+    {
+        "Error": "This Order already was placed. Create another Order"
+    }
 __________________________________________________________________________________________
 
 **3.Accounting Microservice API**
