@@ -1,10 +1,10 @@
-The microservices have created by Django Framework. They use MySQL databases. 
+The microservices have been developed with Django Framework. They use MySQL databases. 
 Every microservice works by Gunicorn and get client's requests through Nginx proxy server.
-All microservices sending messages to each other by RabbitMQ server.
+All microservices send messages to each other by RabbitMQ server.
 
-The Warehouse sends messages to Sales when Item instances changes. 
+The Warehouse sends messages to Sales when Item instances change. 
 
-The Sales sends messages to Warehouse and Accounting then Order and Item change.
+The Sales sends messages to Warehouse and Accounting when Order and Item change.
 
 The Accounting only receive messages from Sales.
 
